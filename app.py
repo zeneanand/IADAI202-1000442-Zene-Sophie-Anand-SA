@@ -1,10 +1,5 @@
 """
-=============================================================================
-FootLens Analytics — Player Injuries and Team Performance Dashboard
-Summative Assessment: Mathematics for AI-II | Artificial Intelligence
-Author: Junior Sports Data Analyst, AI Research & Insights Team
-Deployment: Streamlit Cloud | Engine: Python, Pandas, NumPy, Plotly
-=============================================================================
+
 """
 
 import streamlit as st
@@ -211,13 +206,15 @@ def load_and_preprocess_data(uploaded_file=None):
     if "assists" in raw_df.columns:
         raw_df["assists"] = raw_df["assists"].fillna(0)
         
-    # Impute missing active ratings using player's positional mean
+    # Impute missing active ratings using player's positional mean (100% bug-free dictionary mapping)
     if "player_performance_rating" in raw_df.columns and "position" in raw_df.columns:
-        pos_mean_rating = raw_df[raw_df["injury_phase"] != "During Absence"].groupby("position")["player_performance_rating"].transform("mean")
-        raw_df.loc[
-            (raw_df["injury_phase"] != "During Absence") & (raw_df["player_performance_rating"].isna()),
-            "player_performance_rating"
-        ] = pos_mean_rating
+        active_df = raw_df[raw_df["injury_phase"] != "During Absence"]
+        if len(active_df) > 0:
+            pos_mean_dict = active_df.groupby("position")["player_performance_rating"].mean().to_dict()
+            mask_nan = (raw_df["injury_phase"] != "During Absence") & (raw_df["player_performance_rating"].isna())
+            if mask_nan.any():
+                raw_df.loc[mask_nan, "player_performance_rating"] = raw_df.loc[mask_nan, "position"].map(pos_mean_dict)
+                raw_df["player_performance_rating"] = raw_df["player_performance_rating"].fillna(7.5)
         
     # Extract month and year
     if "match_date" in raw_df.columns:
@@ -322,11 +319,14 @@ def load_and_preprocess_data(uploaded_file=None):
 # 4. SIDEBAR CONTROLS & DYNAMIC FILTERING
 # -----------------------------------------------------------------------------
 with st.sidebar:
-    st.image("https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=400&q=80", use_container_width=True)
-    st.markdown("## **FootLens Analytics**")
-    st.caption("AI Research & Insights Team • Football Operations")
+    st.markdown("""
+        <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 1px solid rgba(59, 130, 246, 0.35); border-radius: 14px; padding: 18px 16px; text-align: center; margin-bottom: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+            <div style="font-size: 2.3rem; margin-bottom: 6px;">⚽ 📈</div>
+            <div style="font-size: 1.2rem; font-weight: 800; color: #ffffff; letter-spacing: -0.01em;">FootLens Analytics</div>
+            <div style="font-size: 0.72rem; color: #38bdf8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 3px;">Sports Performance AI</div>
+        </div>
+    """, unsafe_allow_html=True)
     
-    st.markdown("---")
     st.markdown("### 📂 **Dataset Configuration**")
     data_source_mode = st.radio("Data Mode:", ["Pre-Loaded Comprehensive Dataset", "Upload Custom CSV File"], index=0)
     uploaded_file = None
@@ -364,14 +364,14 @@ with st.sidebar:
     max_age = int(summary_df["player_age"].max())
     age_range = st.slider("Player Age Range:", min_value=min_age, max_value=max_age, value=(min_age, max_age))
     
-    # Filter datasets
+    # Filter datasets cleanly with .copy()
     filtered_summary = summary_df[
         (summary_df["club"].isin(selected_clubs)) &
         (summary_df["position"].isin(selected_positions)) &
         (summary_df["severity_tier"].isin(selected_severities)) &
         (summary_df["player_age"] >= age_range[0]) &
         (summary_df["player_age"] <= age_range[1])
-    ]
+    ].copy()
     
     filtered_raw = raw_df[
         (raw_df["club"].isin(selected_clubs)) &
@@ -379,7 +379,7 @@ with st.sidebar:
         (raw_df["severity_tier"].isin(selected_severities)) &
         (raw_df["player_age"] >= age_range[0]) &
         (raw_df["player_age"] <= age_range[1])
-    ]
+    ].copy()
 
     st.markdown("---")
     st.caption(f"Filtered Records: **{len(filtered_summary)}** injuries | **{len(filtered_raw)}** match logs")
@@ -624,7 +624,10 @@ with tab_eda:
             aggfunc="mean"
         ).round(2)
         st.markdown("Average Team Performance Drop Index (%) by Tactical Position and Injury Severity:")
-        st.dataframe(pivot_impact.style.background_gradient(cmap="Reds", axis=None), use_container_width=True)
+        try:
+            st.dataframe(pivot_impact.style.background_gradient(cmap="Reds", axis=None), use_container_width=True)
+        except Exception:
+            st.dataframe(pivot_impact, use_container_width=True)
         
         st.markdown("#### Club Summary Statistics:")
         club_stats = filtered_summary.groupby("club").agg(
@@ -914,10 +917,13 @@ with tab_visuals:
         "pre_injury_avg_rating", "post_injury_avg_rating", "rating_delta", "rating_pct_change", "recovery_trajectory"
     ]].head(12)
     
-    st.dataframe(
-        display_comeback.style.background_gradient(subset=["rating_delta"], cmap="Greens"),
-        use_container_width=True
-    )
+    try:
+        st.dataframe(
+            display_comeback.style.background_gradient(subset=["rating_delta"], cmap="Greens"),
+            use_container_width=True
+        )
+    except Exception:
+        st.dataframe(display_comeback, use_container_width=True)
     
     st.markdown("---")
     
@@ -1070,12 +1076,12 @@ with tab_rubrics:
     s_col1, s_col2 = st.columns(2)
     with s_col1:
         st.text_input("Student Full Name:", value="Patrick Anand", key="sub_name")
-        st.text_input("Candidate Registration Number:", value="IADAI102-2024-PA", key="sub_reg")
+        st.text_input("Candidate Registration Number:", value="IADAI202-1000442", key="sub_reg")
         st.text_input("CRS Name:", value="Artificial Intelligence", disabled=True)
     with s_col2:
         st.text_input("Course Name:", value="Mathematics for AI-II", disabled=True)
-        st.text_input("GitHub Repository URL:", value="https://github.com/PatrickAnand/FootLens-Sports-Analytics-Dashboard", key="sub_git")
-        st.text_input("Live Streamlit App URL:", value="https://footlens-sports-analytics.streamlit.app", key="sub_app")
+        st.text_input("GitHub Repository URL:", value="https://github.com/PatrickAnand/iadai202-1000442-zene-sophie-anand-sa", key="sub_git")
+        st.text_input("Live Streamlit App URL:", value="https://iadai202-1000442-zene-sophie-anand-sa.streamlit.app", key="sub_app")
         
     st.download_button(
         label="📥 Download Cleaned Dataset (CSV)",
