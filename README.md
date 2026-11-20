@@ -12,8 +12,8 @@
 > **Scenario:** Scenario 1 — Player Injuries and Team Performance Dashboard  
 > **Student Full Name:** Patrick Anand  
 > **Candidate Registration Number:** IADAI102-2024-PA  
-> **Repository Name:** `IADAI102(Student_id)-studentname`  
-> **Live Streamlit Web App Link:** [https://footlens-sports-analytics.streamlit.app](https://footlens-sports-analytics.streamlit.app)  
+> **Repository Name:** `IADAI102 ZENE SOPHOE ANAND-SA`  
+> **Live Streamlit Web App Link:** [https://footlens-sports-analytics.streamlit.app](https://iadai202-1000442-zene-sophie-anand-sa-lcytxoheqphhdpohbxu9g8.streamlit.app/)  
 
 ---
 
