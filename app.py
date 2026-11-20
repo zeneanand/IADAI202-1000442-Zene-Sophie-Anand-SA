@@ -1,6 +1,4 @@
-"""
 
-"""
 
 import streamlit as st
 import pandas as pd
@@ -128,7 +126,6 @@ st.markdown("""
 # 3. DATA INGESTION & ROBUST PREPROCESSING PIPELINE (Step 2)
 # -----------------------------------------------------------------------------
 def get_dataset_path():
-    """Finds the dataset file across multiple possible locations."""
     candidates = [
         os.path.join(os.path.dirname(__file__), "footlens_match_injury_dataset_raw.csv"),
         os.path.join(os.path.dirname(__file__), "data", "footlens_match_injury_dataset_raw.csv"),
@@ -142,14 +139,6 @@ def get_dataset_path():
 
 @st.cache_data(show_spinner=False)
 def load_and_preprocess_data(uploaded_file=None):
-    """
-    Step 2: Preprocessing and Cleaning Pipeline
-    - Handles missing values in ratings, goals, and dates
-    - Converts injury dates and match dates to datetime format
-    - Computes engineered columns: pre/post ratings, team drop index, goal difference delta
-    - Standardizes column naming and formats
-    - Bulletproof fallback: generates realistic data if file is not found
-    """
     if uploaded_file is not None:
         raw_df = pd.read_csv(uploaded_file)
     else:
@@ -157,7 +146,6 @@ def load_and_preprocess_data(uploaded_file=None):
         if found_path and os.path.exists(found_path):
             raw_df = pd.read_csv(found_path)
         else:
-            # Inline self-contained emergency generator with zero external imports
             np.random.seed(42)
             clubs = ["Manchester City", "Arsenal", "Liverpool", "Real Madrid", "Bayern Munich", "Barcelona", "Inter Milan", "Paris Saint-Germain"]
             injuries = ["Hamstring Strain (Grade 2)", "ACL Anterior Cruciate Rupture", "Meniscus Tear (Arthroscopic)", "Ankle Ligament Sprain", "Calf Muscle Tear"]
@@ -173,7 +161,6 @@ def load_and_preprocess_data(uploaded_file=None):
                 st_date = pd.Timestamp("2023-01-01") + pd.Timedelta(days=i * 6)
                 ed_date = st_date + pd.Timedelta(days=dur)
                 
-                # Pre, absence, post matches
                 for phase, n_m, rat in [("Pre-Injury", 5, 8.2), ("During Absence", 6, np.nan), ("Post-Recovery", 5, 8.0)]:
                     for m in range(n_m):
                         res = np.random.choice(["Win", "Draw", "Loss"], p=[0.6, 0.2, 0.2] if phase != "During Absence" else [0.35, 0.35, 0.30])
@@ -191,22 +178,17 @@ def load_and_preprocess_data(uploaded_file=None):
                         })
             raw_df = pd.DataFrame(rows)
     
-    # Standardize column naming
     raw_df.columns = [c.strip().lower().replace(" ", "_") for c in raw_df.columns]
     
-    # Convert dates to datetime
-    date_cols = ["match_date", "injury_start_date", "injury_end_date"]
-    for c in date_cols:
+    for c in ["match_date", "injury_start_date", "injury_end_date"]:
         if c in raw_df.columns:
             raw_df[c] = pd.to_datetime(raw_df[c], errors="coerce")
             
-    # Handle missing values:
     if "goals_scored" in raw_df.columns:
         raw_df["goals_scored"] = raw_df["goals_scored"].fillna(0)
     if "assists" in raw_df.columns:
         raw_df["assists"] = raw_df["assists"].fillna(0)
         
-    # Impute missing active ratings using player's positional mean (100% bug-free dictionary mapping)
     if "player_performance_rating" in raw_df.columns and "position" in raw_df.columns:
         active_df = raw_df[raw_df["injury_phase"] != "During Absence"]
         if len(active_df) > 0:
@@ -216,7 +198,6 @@ def load_and_preprocess_data(uploaded_file=None):
                 raw_df.loc[mask_nan, "player_performance_rating"] = raw_df.loc[mask_nan, "position"].map(pos_mean_dict)
                 raw_df["player_performance_rating"] = raw_df["player_performance_rating"].fillna(7.5)
         
-    # Extract month and year
     if "match_date" in raw_df.columns:
         raw_df["match_month"] = raw_df["match_date"].dt.strftime("%B")
         raw_df["match_month_num"] = raw_df["match_date"].dt.month
@@ -225,7 +206,6 @@ def load_and_preprocess_data(uploaded_file=None):
             lambda d: f"{d.year}/{str(d.year+1)[-2:]}" if pd.notnull(d) and d.month >= 8 else f"{d.year-1}/{str(d.year)[-2:]}" if pd.notnull(d) else "Unknown"
         )
         
-    # Calculate Episode Level Summaries
     episodes = []
     if "injury_id" in raw_df.columns:
         for inj_id, g in raw_df.groupby("injury_id"):
@@ -261,7 +241,6 @@ def load_and_preprocess_data(uploaded_file=None):
             gd_abs = abs_g["goal_difference"].mean() if len(abs_g) > 0 else 0.0
             gd_drop = gd_with - gd_abs
             
-            # Categorize Recovery Trajectory
             if rat_pct >= 4.0:
                 trajectory = "Elite Comeback"
             elif rat_pct >= -1.5:
@@ -271,7 +250,6 @@ def load_and_preprocess_data(uploaded_file=None):
             else:
                 trajectory = "Severe Decline"
                 
-            # Estimated Points Lost to Absence
             expected_points = ppg_with * total_abs
             actual_points = abs_g["team_points"].sum()
             points_lost = max(0.0, expected_points - actual_points)
@@ -341,44 +319,43 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("### 🔍 **Tactical Filters**")
     
-    # Club Selector
     all_clubs = sorted(summary_df["club"].unique().tolist())
-    selected_clubs = st.multiselect("Select Clubs:", all_clubs, default=all_clubs[:6])
+    selected_clubs = st.multiselect("Select Clubs:", all_clubs, default=all_clubs)
     if not selected_clubs:
         selected_clubs = all_clubs
         
-    # Position Filter
     all_positions = sorted(summary_df["position"].unique().tolist())
     selected_positions = st.multiselect("Player Positions:", all_positions, default=all_positions)
     if not selected_positions:
         selected_positions = all_positions
         
-    # Severity Filter
     all_severities = sorted(summary_df["severity_tier"].unique().tolist())
     selected_severities = st.multiselect("Injury Severity Tier:", all_severities, default=all_severities)
     if not selected_severities:
         selected_severities = all_severities
         
-    # Age Slider
-    min_age = int(summary_df["player_age"].min())
-    max_age = int(summary_df["player_age"].max())
+    min_age = int(summary_df["player_age"].min()) if len(summary_df) > 0 else 18
+    max_age = int(summary_df["player_age"].max()) if len(summary_df) > 0 else 38
+    if min_age >= max_age:
+        max_age = min_age + 10
     age_range = st.slider("Player Age Range:", min_value=min_age, max_value=max_age, value=(min_age, max_age))
+    age_min = age_range[0] if isinstance(age_range, (tuple, list)) else min_age
+    age_max = age_range[1] if isinstance(age_range, (tuple, list)) else int(age_range)
     
-    # Filter datasets cleanly with .copy()
     filtered_summary = summary_df[
         (summary_df["club"].isin(selected_clubs)) &
         (summary_df["position"].isin(selected_positions)) &
         (summary_df["severity_tier"].isin(selected_severities)) &
-        (summary_df["player_age"] >= age_range[0]) &
-        (summary_df["player_age"] <= age_range[1])
+        (summary_df["player_age"] >= age_min) &
+        (summary_df["player_age"] <= age_max)
     ].copy()
     
     filtered_raw = raw_df[
         (raw_df["club"].isin(selected_clubs)) &
         (raw_df["position"].isin(selected_positions)) &
         (raw_df["severity_tier"].isin(selected_severities)) &
-        (raw_df["player_age"] >= age_range[0]) &
-        (raw_df["player_age"] <= age_range[1])
+        (raw_df["player_age"] >= age_min) &
+        (raw_df["player_age"] <= age_max)
     ].copy()
 
     st.markdown("---")
@@ -473,139 +450,342 @@ with k5:
 st.write("")
 
 # -----------------------------------------------------------------------------
+# 5B. EXECUTIVE SPOTLIGHT VISUALS (Always Visible Live Graphs)
+# -----------------------------------------------------------------------------
+st.markdown("### 📈 Live Performance & Injury Diagnostics")
+col_g1, col_g2 = st.columns([1, 1])
+
+with col_g1:
+    inj_drop_lead = filtered_summary.groupby("injury_type").agg(
+        avg_drop=("team_performance_drop_index", "mean")
+    ).reset_index().sort_values(by="avg_drop", ascending=False).head(8)
+    
+    fig_lead = px.bar(
+        inj_drop_lead,
+        x="avg_drop",
+        y="injury_type",
+        orientation="h",
+        color="avg_drop",
+        color_continuous_scale="Reds",
+        text=inj_drop_lead["avg_drop"].apply(lambda v: f"{v:.1f}%"),
+        labels={"avg_drop": "Drop Index (%)", "injury_type": "Injury Diagnosis"},
+        title="Top Diagnoses by Team Points Degradation (%)"
+    )
+    fig_lead.update_layout(
+        template="plotly_dark",
+        plot_bgcolor="rgba(15,23,42,0.8)",
+        paper_bgcolor="rgba(15,23,42,0.8)",
+        yaxis=dict(autorange="reversed"),
+        height=380,
+        autosize=True,
+        margin=dict(l=10, r=10, t=40, b=20)
+    )
+    st.plotly_chart(fig_lead, use_container_width=True)
+
+with col_g2:
+    wdl_spot = filtered_raw.groupby(["injury_phase", "match_result"])["match_id"].count().reset_index()
+    fig_spot = px.bar(
+        wdl_spot,
+        x="injury_phase",
+        y="match_id",
+        color="match_result",
+        barmode="group",
+        color_discrete_map={"Win": "#10b981", "Draw": "#f59e0b", "Loss": "#ef4444"},
+        labels={"match_id": "Matches", "injury_phase": "Phase", "match_result": "Result"},
+        title="Team Match Outcome Distribution: Active vs Absence"
+    )
+    fig_spot.update_layout(
+        template="plotly_dark",
+        plot_bgcolor="rgba(15,23,42,0.8)",
+        paper_bgcolor="rgba(15,23,42,0.8)",
+        height=380,
+        autosize=True,
+        margin=dict(l=10, r=10, t=40, b=20)
+    )
+    st.plotly_chart(fig_spot, use_container_width=True)
+
+st.write("")
+
+# -----------------------------------------------------------------------------
 # 6. MAIN NAVIGATION TABS (Strictly Aligned with Rubrics Table 1)
 # -----------------------------------------------------------------------------
-tab_overview, tab_cleaning, tab_eda, tab_visuals, tab_simulator, tab_rubrics = st.tabs([
-    "📌 1. Executive Context & 5 Research Questions",
-    "🧹 2. Data Preprocessing & Cleaning Pipeline",
-    "🔬 3. Statistical EDA & Hypothesis Testing",
-    "📊 4. Interactive Visualizations (Required 5+)",
+tab_visuals, tab_eda, tab_cleaning, tab_overview, tab_simulator, tab_rubrics = st.tabs([
+    "📊 1. Detailed Interactive Visualizations (All 5+ Charts)",
+    "🔬 2. Statistical EDA & Groupby Analysis (Step 3)",
+    "🧹 3. Data Cleaning & Feature Pipeline (Step 2)",
+    "📌 4. Problem Context & 5 Research Questions (Step 1)",
     "🎮 5. Tactical Squad Impact Simulator",
     "📑 6. Assessment Rubrics & Submission Document"
 ])
 
 # =============================================================================
-# TAB 1: EXECUTIVE CONTEXT & PROBLEM FRAMING (Step 1)
+# TAB 1: INTERACTIVE VISUALIZATIONS (Step 4 - 6+ Interactive Charts)
 # =============================================================================
-with tab_overview:
-    st.markdown("### ⚽ FootLens Analytics: Business Rationale & Problem Formulation")
-    
-    col_intro1, col_intro2 = st.columns([3, 2])
-    with col_intro1:
-        st.markdown("""
-        **FootLens Analytics** is a sports technology firm dedicated to physical load monitoring, injury risk reduction, 
-        and tactical squad planning. Professional football clubs operate in an intensely competitive environment with millions 
-        of euros at stake per league position. When key athletes suffer muscular or ligament trauma, the ripple effect on match outcomes, 
-        tactical systems, and league standings can be devastating.
-        
-        Our AI Research & Insights team was tasked with examining multi-season performance and medical logs to answer critical questions 
-        for Technical Directors, Head Physicians, and Sports Managers.
-        """)
-        
-        st.markdown("""
-        <div class="info-callout">
-            <strong>Core Analytical Objective:</strong> Quantify the mathematical relationship between specific injury categories, 
-            player absence duration, post-recovery physical performance attenuation, and team Points-Per-Game (PPG) attrition.
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col_intro2:
-        st.markdown("#### 📐 Mathematical Formulations")
-        st.latex(r"\text{PPG}_{\text{Active}} = \frac{\sum \text{Points}_{\text{with player}}}{\text{Matches}_{\text{with player}}}")
-        st.latex(r"\text{PPG}_{\text{Absence}} = \frac{\sum \text{Points}_{\text{during absence}}}{\text{Matches}_{\text{during absence}}}")
-        st.latex(r"\text{Team Performance Drop Index (\%)} = \left( \frac{\text{PPG}_{\text{Active}} - \text{PPG}_{\text{Absence}}}{\text{PPG}_{\text{Active}}} \right) \times 100")
-        st.latex(r"\Delta \text{Rating (\%)} = \left( \frac{\bar{R}_{\text{post}} - \bar{R}_{\text{pre}}}{\bar{R}_{\text{pre}}} \right) \times 100")
-
-    st.markdown("---")
-    st.markdown("### ❓ The 5 Core Research Questions Driving This Investigation")
-    
-    q_col1, q_col2 = st.columns(2)
-    with q_col1:
-        st.markdown("""
-        **1. Which specific injury types lead to the biggest team performance drop?**  
-        *Hypothesis:* Catastrophic ligament injuries (e.g., ACL rupture, Achilles) and recurring hamstring tears create prolonged squad vacuums, causing higher drop indices than contact bruises or minor sprains.
-        
-        **2. What is the team's win/loss/draw record during key player absences?**  
-        *Hypothesis:* Elite squads experience a measurable drop in win percentage (typically 15–25% lower) and an uptick in draws/losses when their primary tactical playmakers or central defenders are sidelined.
-        
-        **3. How do individual players perform after recovery compared to their pre-injury baseline?**  
-        *Hypothesis:* Post-injury rating recovery is not uniform; younger players (<24 yrs) frequently exhibit 'Elite Comebacks' exceeding their baseline, whereas veteran players (>29 yrs) suffer persistent residual performance drops.
-        """)
-    with q_col2:
-        st.markdown("""
-        **4. Are there specific calendar months or clubs with frequent injury clusters?**  
-        *Hypothesis:* High fixture congestion during the winter period (November, December, January) produces acute spikes in soft-tissue injuries due to insufficient inter-match recovery windows (<72 hours).
-        
-        **5. Which clubs suffer most disproportionately due to injuries?**  
-        *Hypothesis:* Clubs with high pressing intensity and thinner squad rotations experience severe cumulative absence days and greater total forfeited league points.
-        
-        **BONUS 6. How does player age interact with recovery duration and performance degradation?**  
-        *Hypothesis:* A statistically significant positive correlation exists between chronological age, healing velocity (recovery days), and post-recovery rating attenuation.
-        """)
-
-# =============================================================================
-# TAB 2: DATA PREPROCESSING & CLEANING PIPELINE (Step 2)
-# =============================================================================
-with tab_cleaning:
-    st.markdown("### 🧹 Step 2: Data Preprocessing, Cleaning, & Feature Engineering")
+with tab_visuals:
+    st.markdown("### 📊 Step 4: Interactive Visualizations (Minimum 5 Visuals Required)")
     st.markdown("""
-    A rigorous data cleaning pipeline was constructed using Python and Pandas to prepare the raw telemetry for downstream 
-    statistical analysis and machine learning.
+    This section presents the **5 required interactive visualizations** directly addressing all 5 research questions, 
+    plus supplemental high-dimensional analytical charts.
     """)
     
-    clean_col1, clean_col2, clean_col3, clean_col4 = st.columns(4)
-    with clean_col1:
-        st.metric("Total Match Logs", f"{len(raw_df):,}")
-    with clean_col2:
-        st.metric("Documented Injury Episodes", f"{len(summary_df):,}")
-    with clean_col3:
-        st.metric("Datetime Validated Fields", "3 Columns")
-    with clean_col4:
-        st.metric("Engineered Features", "11 Metrics")
-        
-    st.markdown("#### 🔄 Cleaning Protocol Highlights")
-    c_tab1, c_tab2, c_tab3 = st.tabs(["1. Missing Values & Type Casting", "2. Feature Engineering Logic", "3. Groupby & Aggregation Structure"])
+    # -------------------------------------------------------------------------
+    # Visual 1: Bar Chart — Top 10 Injuries with Highest Team Performance Drop
+    # -------------------------------------------------------------------------
+    st.markdown("#### 1. Top 10 Injuries with Highest Team Performance Drop Index")
+    st.caption("Addressing Question 1: Quantifies which specific medical diagnoses create the steepest drop in points-per-game.")
     
-    with c_tab1:
+    inj_drop = filtered_summary.groupby("injury_type").agg(
+        avg_drop=("team_performance_drop_index", "mean"),
+        count=("injury_id", "count"),
+        avg_days=("recovery_days", "mean")
+    ).reset_index().sort_values(by="avg_drop", ascending=False).head(10)
+    
+    fig_v1 = px.bar(
+        inj_drop,
+        x="avg_drop",
+        y="injury_type",
+        orientation="h",
+        color="avg_drop",
+        color_continuous_scale="Reds",
+        text=inj_drop["avg_drop"].apply(lambda v: f"{v:.1f}%"),
+        labels={"avg_drop": "Avg Team Drop Index (%)", "injury_type": "Injury Diagnosis"},
+        title="Top 10 Diagnoses by Team Points-Per-Game Degradation (%)"
+    )
+    fig_v1.update_layout(
+        template="plotly_dark",
+        plot_bgcolor="rgba(15,23,42,0.8)",
+        paper_bgcolor="rgba(15,23,42,0.8)",
+        yaxis=dict(autorange="reversed"),
+        height=420,
+        autosize=True,
+        margin=dict(l=20, r=20, t=50, b=30)
+    )
+    st.plotly_chart(fig_v1, use_container_width=True)
+    
+    col_v1_notes = st.columns([1])[0]
+    with col_v1_notes:
         st.markdown("""
-        - **Handling NaNs in Player Ratings:** During match logs where the player was unavailable due to injury (`injury_phase == 'During Absence'`), individual player ratings are naturally missing. The pipeline isolates and preserves absence logs for team-level PPG calculations, while imputing occasional missing active ratings with positional cohort medians.
-        - **Date Conversions:** `match_date`, `injury_start_date`, and `injury_end_date` were parsed into standard ISO-8601 `datetime64[ns]` objects, enabling date arithmetic and interval extraction.
-        - **Data Standardizations:** Standardized snake_case column headers and mapped categorical severity tiers: `Mild`, `Moderate`, `Major`, `Severe / Catastrophic`.
+        > **Key Insight:** ACL Ruptures and Achilles Tendon Ruptures precipitate an average drop index exceeding **40%**, 
+        > whereas soft-tissue hamstring strains cause a 15–25% drop. The extended duration forces prolonged tactical compromises.
         """)
+
+    st.markdown("---")
+    
+    # -------------------------------------------------------------------------
+    # Visual 2: Line Chart — Player Performance Timeline (Before, During, After)
+    # -------------------------------------------------------------------------
+    st.markdown("#### 2. Individual Player Performance Timeline Across Injury Phases")
+    st.caption("Addressing Question 3: Dynamic match-by-match trajectory showing pre-injury baseline, absence window, and post-recovery return.")
+    
+    available_players = sorted(filtered_summary["player_name"].unique().tolist())
+    if available_players:
+        selected_player_timeline = st.selectbox("Select Player for Timeline Tracking:", available_players, index=0)
         
-        st.markdown("##### Missing Values Audit in Loaded Dataset:")
-        null_counts = raw_df.isnull().sum()
-        null_df = pd.DataFrame({"Feature Name": null_counts.index, "Missing Count": null_counts.values, "Missing %": (null_counts.values / len(raw_df) * 100).round(2)})
-        st.dataframe(null_df[null_df["Missing Count"] > 0], use_container_width=True)
+        player_matches = raw_df[raw_df["player_name"] == selected_player_timeline].sort_values(by="match_date")
         
-    with c_tab2:
-        st.markdown("""
-        The following mathematical features were engineered to quantify player and club impact:
-        - `pre_injury_avg_rating`: Mean match rating across 5 appearances immediately prior to injury.
-        - `post_injury_avg_rating`: Mean match rating across 5 appearances following medical clearance.
-        - `rating_delta` & `rating_pct_change`: Absolute and percentage shift in individual player output.
-        - `team_ppg_with_player` vs `team_ppg_during_absence`: Comparative Points-Per-Game differential.
-        - `team_performance_drop_index`: Percentage degradation in club points accrual during absence.
-        - `recovery_trajectory`: Qualitative segmentation: *Elite Comeback*, *Maintained Baseline*, *Slight Decline*, *Severe Decline*.
-        - `points_lost_to_absence`: Expected club points minus actual points earned during injury window.
-        """)
-        st.code("""
-# Feature Engineering Snippet
-drop_index = ((ppg_with - ppg_absent) / ppg_with * 100) if ppg_with > 0 else 0.0
-rating_pct_change = ((post_rating - pre_rating) / pre_rating) * 100
-recovery_days = (injury_end_date - injury_start_date).dt.days
-        """, language="python")
-        
-    with c_tab3:
-        st.markdown("""
-        Groupby operations were executed across both `player_name` and `injury_id` to aggregate metrics across three distinct phases:
-        `Pre-Injury`, `During Absence`, and `Post-Recovery`.
-        """)
-        sample_group = filtered_summary[["player_name", "club", "injury_type", "recovery_days", "pre_injury_avg_rating", "post_injury_avg_rating", "team_performance_drop_index"]].head(8)
-        st.dataframe(sample_group, use_container_width=True)
+        if len(player_matches) > 0:
+            fig_v2 = go.Figure()
+            
+            pre_matches = player_matches[player_matches["injury_phase"] == "Pre-Injury"]
+            fig_v2.add_trace(go.Scatter(
+                x=pre_matches["match_date"],
+                y=pre_matches["player_performance_rating"],
+                mode="lines+markers",
+                name="Pre-Injury Baseline",
+                line=dict(color="#3b82f6", width=3),
+                marker=dict(size=8, symbol="circle")
+            ))
+            
+            post_matches = player_matches[player_matches["injury_phase"] == "Post-Recovery"]
+            fig_v2.add_trace(go.Scatter(
+                x=post_matches["match_date"],
+                y=post_matches["player_performance_rating"],
+                mode="lines+markers",
+                name="Post-Recovery Return",
+                line=dict(color="#10b981", width=3),
+                marker=dict(size=8, symbol="diamond")
+            ))
+            
+            first_inj = filtered_summary[filtered_summary["player_name"] == selected_player_timeline].iloc[0]
+            fig_v2.add_vrect(
+                x0=first_inj["injury_start_date"],
+                x1=first_inj["injury_end_date"],
+                fillcolor="rgba(239, 68, 68, 0.22)",
+                layer="below",
+                line_width=1,
+                line_color="rgba(239, 68, 68, 0.6)",
+                annotation_text=f"ABSENCE: {first_inj['injury_type']} ({first_inj['recovery_days']}d)",
+                annotation_position="top left",
+                annotation_font=dict(color="#f87171", size=10)
+            )
+            
+            fig_v2.update_layout(
+                title=f"{selected_player_timeline} ({first_inj['club']} - {first_inj['position']}): Match Performance Trajectory",
+                xaxis_title="Match Date",
+                yaxis_title="Player Performance Rating (1.0 - 10.0)",
+                template="plotly_dark",
+                plot_bgcolor="rgba(15,23,42,0.8)",
+                paper_bgcolor="rgba(15,23,42,0.8)",
+                height=400,
+                autosize=True,
+                hovermode="x unified"
+            )
+            st.plotly_chart(fig_v2, use_container_width=True)
+            
+            st.markdown(f"""
+            > **Player Diagnostics:** Pre-Injury Rating: **{first_inj['pre_injury_avg_rating']}** | 
+            > Post-Recovery Rating: **{first_inj['post_injury_avg_rating']}** | 
+            > Delta: **{first_inj['rating_delta']:+.2f}** ({first_inj['rating_pct_change']:+.1f}%) | 
+            > Outcome: **{first_inj['recovery_trajectory']}**
+            """)
+
+    st.markdown("---")
+    
+    # -------------------------------------------------------------------------
+    # Visual 3: Heatmap — Injury Frequency Across Months and Clubs
+    # -------------------------------------------------------------------------
+    st.markdown("#### 3. Injury Frequency Heatmap across Calendar Months and Clubs")
+    st.caption("Addressing Question 4: Identifies seasonal injury clustering and fixture congestion vulnerabilities.")
+    
+    filtered_summary["month_order"] = pd.to_datetime(filtered_summary["injury_start_date"]).dt.month
+    month_names = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+    
+    heatmap_data = filtered_summary.pivot_table(
+        index="club",
+        columns="injury_month",
+        values="injury_id",
+        aggfunc="count",
+        fill_value=0
+    )
+    available_months = [m for m in month_names if m in heatmap_data.columns]
+    heatmap_data = heatmap_data[available_months]
+    
+    fig_v3 = px.imshow(
+        heatmap_data,
+        labels=dict(x="Calendar Month", y="Club", color="Injury Count"),
+        color_continuous_scale="Magma",
+        aspect="auto",
+        title="Spatiotemporal Distribution of Medical Incidents by Club and Month"
+    )
+    fig_v3.update_layout(
+        template="plotly_dark",
+        plot_bgcolor="rgba(15,23,42,0.8)",
+        paper_bgcolor="rgba(15,23,42,0.8)",
+        height=450,
+        autosize=True
+    )
+    st.plotly_chart(fig_v3, use_container_width=True)
+    
+    st.markdown("""
+    > **Fixture Congestion Findings:** A pronounced cluster of muscular strains occurs during **November, December, and January**. 
+    > This coincides with intense mid-season European competitions and domestic cup schedules without adequate restorative rest.
+    """)
+
+    st.markdown("---")
+    
+    # -------------------------------------------------------------------------
+    # Visual 4: Scatter Plot — Player Age vs. Team Performance Drop Index
+    # -------------------------------------------------------------------------
+    st.markdown("#### 4. Scatter Plot: Player Age vs. Team Performance Drop Index & Recovery")
+    st.caption("Addressing Question 5 & Bonus 6: Explores whether older athlete injuries create more severe team deficits.")
+    
+    fig_v4 = px.scatter(
+        filtered_summary,
+        x="player_age",
+        y="team_performance_drop_index",
+        size="recovery_days",
+        color="position",
+        hover_name="player_name",
+        hover_data=["club", "injury_type", "recovery_days", "recovery_trajectory"],
+        labels={
+            "player_age": "Player Chronological Age",
+            "team_performance_drop_index": "Team Performance Drop Index (%)",
+            "recovery_days": "Absence Days"
+        },
+        title="Correlation Between Athlete Age and Team Performance Drop Index"
+    )
+    if len(filtered_summary) > 2:
+        valid_scatter = filtered_summary[["player_age", "team_performance_drop_index"]].dropna()
+        if len(valid_scatter) > 1:
+            m_slope, b_intercept = np.polyfit(valid_scatter["player_age"], valid_scatter["team_performance_drop_index"], 1)
+            x_line = np.linspace(valid_scatter["player_age"].min(), valid_scatter["player_age"].max(), 50)
+            y_line = m_slope * x_line + b_intercept
+            fig_v4.add_trace(go.Scatter(
+                x=x_line,
+                y=y_line,
+                mode="lines",
+                name=f"OLS Trendline (slope: {m_slope:+.2f})",
+                line=dict(color="#f43f5e", width=2.5, dash="dash")
+            ))
+    fig_v4.update_layout(
+        template="plotly_dark",
+        plot_bgcolor="rgba(15,23,42,0.8)",
+        paper_bgcolor="rgba(15,23,42,0.8)",
+        height=450,
+        autosize=True
+    )
+    st.plotly_chart(fig_v4, use_container_width=True)
+    
+    st.markdown("""
+    > **Mathematical Regression Takeaway:** The OLS trendline reveals a moderate positive gradient. Veteran players (>29) 
+    > often occupy irreplaceable tactical leadership roles, causing steeper drops when sidelined.
+    """)
+
+    st.markdown("---")
+    
+    # -------------------------------------------------------------------------
+    # Visual 5: Leaderboard Table — Comeback Players Ranked by Rating Improvement
+    # -------------------------------------------------------------------------
+    st.markdown("#### 5. Leaderboard: Comeback Players Ranked by Rating Improvement")
+    st.caption("Addressing Question 3: Technical Directors can identify athletes who exhibited exceptional psychological and physical resilience.")
+    
+    comeback_df = filtered_summary.sort_values(by="rating_delta", ascending=False).reset_index(drop=True)
+    comeback_df["Rank"] = comeback_df.index + 1
+    
+    display_comeback = comeback_df[[
+        "Rank", "player_name", "club", "position", "injury_type", "recovery_days",
+        "pre_injury_avg_rating", "post_injury_avg_rating", "rating_delta", "rating_pct_change", "recovery_trajectory"
+    ]].head(12)
+    
+    try:
+        st.dataframe(
+            display_comeback.style.background_gradient(subset=["rating_delta"], cmap="Greens"),
+            use_container_width=True
+        )
+    except Exception:
+        st.dataframe(display_comeback, use_container_width=True)
+    
+    st.markdown("---")
+    
+    # -------------------------------------------------------------------------
+    # Visual 6 (Bonus): Team Win/Draw/Loss Record During Player Absence
+    # -------------------------------------------------------------------------
+    st.markdown("#### 6. Team Win/Draw/Loss Record During Absence vs. Active Presence")
+    st.caption("Addressing Question 2: Compares match outcome distribution when key players were active vs absent.")
+    
+    wdl_agg = filtered_raw.groupby(["injury_phase", "match_result"])["match_id"].count().reset_index()
+    
+    fig_v6 = px.bar(
+        wdl_agg,
+        x="injury_phase",
+        y="match_id",
+        color="match_result",
+        barmode="group",
+        color_discrete_map={"Win": "#10b981", "Draw": "#f59e0b", "Loss": "#ef4444"},
+        labels={"match_id": "Number of Matches", "injury_phase": "Phase", "match_result": "Match Outcome"},
+        title="Comparative Match Outcomes Across Injury Phases"
+    )
+    fig_v6.update_layout(
+        template="plotly_dark",
+        plot_bgcolor="rgba(15,23,42,0.8)",
+        paper_bgcolor="rgba(15,23,42,0.8)",
+        height=400,
+        autosize=True
+    )
+    st.plotly_chart(fig_v6, use_container_width=True)
 
 # =============================================================================
-# TAB 3: STATISTICAL EDA & HYPOTHESIS TESTING (Step 3)
+# TAB 2: STATISTICAL EDA & HYPOTHESIS TESTING (Step 3)
 # =============================================================================
 with tab_eda:
     st.markdown("### 🔬 Step 3: Exploratory Data Analysis & Statistical Modeling")
@@ -692,266 +872,124 @@ with tab_eda:
                     st.info("Moderate correlation observed.")
 
 # =============================================================================
-# TAB 4: INTERACTIVE VISUALIZATIONS (Step 4 - 5+ Interactive Charts)
+# TAB 3: DATA PREPROCESSING & CLEANING PIPELINE (Step 2)
 # =============================================================================
-with tab_visuals:
-    st.markdown("### 📊 Step 4: Interactive Visualizations (Minimum 5 Visuals Required)")
+with tab_cleaning:
+    st.markdown("### 🧹 Step 2: Data Preprocessing, Cleaning, & Feature Engineering")
     st.markdown("""
-    This section presents the **5 required interactive visualizations** directly addressing all 5 research questions, 
-    plus supplemental high-dimensional analytical charts.
+    A rigorous data cleaning pipeline was constructed using Python and Pandas to prepare the raw telemetry for downstream 
+    statistical analysis and machine learning.
     """)
     
-    # -------------------------------------------------------------------------
-    # Visual 1: Bar Chart — Top 10 Injuries with Highest Team Performance Drop
-    # -------------------------------------------------------------------------
-    st.markdown("#### 1. Top 10 Injuries with Highest Team Performance Drop Index")
-    st.caption("Addressing Question 1: Quantifies which specific medical diagnoses create the steepest drop in points-per-game.")
-    
-    inj_drop = filtered_summary.groupby("injury_type").agg(
-        avg_drop=("team_performance_drop_index", "mean"),
-        count=("injury_id", "count"),
-        avg_days=("recovery_days", "mean")
-    ).reset_index().sort_values(by="avg_drop", ascending=False).head(10)
-    
-    fig_v1 = px.bar(
-        inj_drop,
-        x="avg_drop",
-        y="injury_type",
-        orientation="h",
-        color="avg_drop",
-        color_continuous_scale="Reds",
-        text=inj_drop["avg_drop"].apply(lambda v: f"{v:.1f}%"),
-        labels={"avg_drop": "Avg Team Drop Index (%)", "injury_type": "Injury Diagnosis"},
-        title="Top 10 Diagnoses by Team Points-Per-Game Degradation (%)"
-    )
-    fig_v1.update_layout(
-        template="plotly_dark",
-        plot_bgcolor="rgba(15,23,42,0.8)",
-        paper_bgcolor="rgba(15,23,42,0.8)",
-        yaxis=dict(autorange="reversed"),
-        height=420,
-        margin=dict(l=20, r=20, t=50, b=30)
-    )
-    st.plotly_chart(fig_v1, use_container_width=True)
-    
-    st.markdown("""
-    > **Key Insight:** ACL Ruptures and Achilles Tendon Ruptures precipitate an average drop index exceeding **40%**, 
-    > whereas soft-tissue hamstring strains cause a 15–25% drop. The extended duration forces prolonged tactical compromises.
-    """)
-
-    st.markdown("---")
-    
-    # -------------------------------------------------------------------------
-    # Visual 2: Line Chart — Player Performance Timeline (Before, During, After)
-    # -------------------------------------------------------------------------
-    st.markdown("#### 2. Individual Player Performance Timeline Across Injury Phases")
-    st.caption("Addressing Question 3: Dynamic match-by-match trajectory showing pre-injury baseline, absence window, and post-recovery return.")
-    
-    available_players = sorted(filtered_summary["player_name"].unique().tolist())
-    if available_players:
-        selected_player_timeline = st.selectbox("Select Player for Timeline Tracking:", available_players, index=0)
-        player_matches = raw_df[raw_df["player_name"] == selected_player_timeline].sort_values(by="match_date")
+    clean_col1, clean_col2, clean_col3, clean_col4 = st.columns(4)
+    with clean_col1:
+        st.metric("Total Match Logs", f"{len(raw_df):,}")
+    with clean_col2:
+        st.metric("Documented Injury Episodes", f"{len(summary_df):,}")
+    with clean_col3:
+        st.metric("Datetime Validated Fields", "3 Columns")
+    with clean_col4:
+        st.metric("Engineered Features", "11 Metrics")
         
-        if len(player_matches) > 0:
-            fig_v2 = go.Figure()
-            
-            # Pre-Injury Phase
-            pre_matches = player_matches[player_matches["injury_phase"] == "Pre-Injury"]
-            fig_v2.add_trace(go.Scatter(
-                x=pre_matches["match_date"],
-                y=pre_matches["player_performance_rating"],
-                mode="lines+markers",
-                name="Pre-Injury Baseline",
-                line=dict(color="#3b82f6", width=3),
-                marker=dict(size=8, symbol="circle")
-            ))
-            
-            # Post-Recovery Phase
-            post_matches = player_matches[player_matches["injury_phase"] == "Post-Recovery"]
-            fig_v2.add_trace(go.Scatter(
-                x=post_matches["match_date"],
-                y=post_matches["player_performance_rating"],
-                mode="lines+markers",
-                name="Post-Recovery Return",
-                line=dict(color="#10b981", width=3),
-                marker=dict(size=8, symbol="diamond")
-            ))
-            
-            # Highlight Absence Window
-            first_inj = filtered_summary[filtered_summary["player_name"] == selected_player_timeline].iloc[0]
-            fig_v2.add_vrect(
-                x0=first_inj["injury_start_date"],
-                x1=first_inj["injury_end_date"],
-                fillcolor="rgba(239, 68, 68, 0.22)",
-                layer="below",
-                line_width=1,
-                line_color="rgba(239, 68, 68, 0.6)",
-                annotation_text=f"ABSENCE: {first_inj['injury_type']} ({first_inj['recovery_days']}d)",
-                annotation_position="top left",
-                annotation_font=dict(color="#f87171", size=10)
-            )
-            
-            fig_v2.update_layout(
-                title=f"{selected_player_timeline} ({first_inj['club']} - {first_inj['position']}): Match Performance Trajectory",
-                xaxis_title="Match Date",
-                yaxis_title="Player Performance Rating (1.0 - 10.0)",
-                template="plotly_dark",
-                plot_bgcolor="rgba(15,23,42,0.8)",
-                paper_bgcolor="rgba(15,23,42,0.8)",
-                height=400,
-                hovermode="x unified"
-            )
-            st.plotly_chart(fig_v2, use_container_width=True)
-            
-            st.markdown(f"""
-            > **Player Diagnostics:** Pre-Injury Rating: **{first_inj['pre_injury_avg_rating']}** | 
-            > Post-Recovery Rating: **{first_inj['post_injury_avg_rating']}** | 
-            > Delta: **{first_inj['rating_delta']:+.2f}** ({first_inj['rating_pct_change']:+.1f}%) | 
-            > Outcome: **{first_inj['recovery_trajectory']}**
-            """)
+    st.markdown("#### 🔄 Cleaning Protocol Highlights")
+    c_tab1, c_tab2, c_tab3 = st.tabs(["1. Missing Values & Type Casting", "2. Feature Engineering Logic", "3. Groupby & Aggregation Structure"])
+    
+    with c_tab1:
+        st.markdown("""
+        - **Handling NaNs in Player Ratings:** During match logs where the player was unavailable due to injury (`injury_phase == 'During Absence'`), individual player ratings are naturally missing. The pipeline isolates and preserves absence logs for team-level PPG calculations, while imputing occasional missing active ratings with positional cohort medians.
+        - **Date Conversions:** `match_date`, `injury_start_date`, and `injury_end_date` were parsed into standard ISO-8601 `datetime64[ns]` objects, enabling date arithmetic and interval extraction.
+        - **Data Standardizations:** Standardized snake_case column headers and mapped categorical severity tiers: `Mild`, `Moderate`, `Major`, `Severe / Catastrophic`.
+        """)
+        
+        st.markdown("##### Missing Values Audit in Loaded Dataset:")
+        null_counts = raw_df.isnull().sum()
+        null_df = pd.DataFrame({"Feature Name": null_counts.index, "Missing Count": null_counts.values, "Missing %": (null_counts.values / len(raw_df) * 100).round(2)})
+        st.dataframe(null_df[null_df["Missing Count"] > 0], use_container_width=True)
+        
+    with c_tab2:
+        st.markdown("""
+        The following mathematical features were engineered to quantify player and club impact:
+        - `pre_injury_avg_rating`: Mean match rating across 5 appearances immediately prior to injury.
+        - `post_injury_avg_rating`: Mean match rating across 5 appearances following medical clearance.
+        - `rating_delta` & `rating_pct_change`: Absolute and percentage shift in individual player output.
+        - `team_ppg_with_player` vs `team_ppg_during_absence`: Comparative Points-Per-Game differential.
+        - `team_performance_drop_index`: Percentage degradation in club points accrual during absence.
+        - `recovery_trajectory`: Qualitative segmentation: *Elite Comeback*, *Maintained Baseline*, *Slight Decline*, *Severe Decline*.
+        - `points_lost_to_absence`: Expected club points minus actual points earned during injury window.
+        """)
+        st.code("""
+# Feature Engineering Snippet
+drop_index = ((ppg_with - ppg_absent) / ppg_with * 100) if ppg_with > 0 else 0.0
+rating_pct_change = ((post_rating - pre_rating) / pre_rating) * 100
+recovery_days = (injury_end_date - injury_start_date).dt.days
+        """, language="python")
+        
+    with c_tab3:
+        st.markdown("""
+        Groupby operations were executed across both `player_name` and `injury_id` to aggregate metrics across three distinct phases:
+        `Pre-Injury`, `During Absence`, and `Post-Recovery`.
+        """)
+        sample_group = filtered_summary[["player_name", "club", "injury_type", "recovery_days", "pre_injury_avg_rating", "post_injury_avg_rating", "team_performance_drop_index"]].head(8)
+        st.dataframe(sample_group, use_container_width=True)
+
+# =============================================================================
+# TAB 4: PROBLEM CONTEXT & 5 RESEARCH QUESTIONS (Step 1)
+# =============================================================================
+with tab_overview:
+    st.markdown("### ⚽ FootLens Analytics: Business Rationale & Problem Formulation")
+    
+    col_intro1, col_intro2 = st.columns([3, 2])
+    with col_intro1:
+        st.markdown("""
+        **FootLens Analytics** is a sports technology firm dedicated to physical load monitoring, injury risk reduction, 
+        and tactical squad planning. Professional football clubs operate in an intensely competitive environment with millions 
+        of euros at stake per league position. When key athletes suffer muscular or ligament trauma, the ripple effect on match outcomes, 
+        tactical systems, and league standings can be devastating.
+        
+        Our AI Research & Insights team was tasked with examining multi-season performance and medical logs to answer critical questions 
+        for Technical Directors, Head Physicians, and Sports Managers.
+        """)
+        
+        st.markdown("""
+        <div class="info-callout">
+            <strong>Core Analytical Objective:</strong> Quantify the mathematical relationship between specific injury categories, 
+            player absence duration, post-recovery physical performance attenuation, and team Points-Per-Game (PPG) attrition.
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col_intro2:
+        st.markdown("#### 📐 Mathematical Formulations")
+        st.latex(r"\text{PPG}_{\text{Active}} = \frac{\sum \text{Points}_{\text{with player}}}{\text{Matches}_{\text{with player}}}")
+        st.latex(r"\text{PPG}_{\text{Absence}} = \frac{\sum \text{Points}_{\text{during absence}}}{\text{Matches}_{\text{during absence}}}")
+        st.latex(r"\text{Team Performance Drop Index (\%)} = \left( \frac{\text{PPG}_{\text{Active}} - \text{PPG}_{\text{Absence}}}{\text{PPG}_{\text{Active}}} \right) \times 100")
+        st.latex(r"\Delta \text{Rating (\%)} = \left( \frac{\bar{R}_{\text{post}} - \bar{R}_{\text{pre}}}{\bar{R}_{\text{pre}}} \right) \times 100")
 
     st.markdown("---")
+    st.markdown("### ❓ The 5 Core Research Questions Driving This Investigation")
     
-    # -------------------------------------------------------------------------
-    # Visual 3: Heatmap — Injury Frequency Across Months and Clubs
-    # -------------------------------------------------------------------------
-    st.markdown("#### 3. Injury Frequency Heatmap across Calendar Months and Clubs")
-    st.caption("Addressing Question 4: Identifies seasonal injury clustering and fixture congestion vulnerabilities.")
-    
-    filtered_summary["month_order"] = pd.to_datetime(filtered_summary["injury_start_date"]).dt.month
-    month_names = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-    
-    heatmap_data = filtered_summary.pivot_table(
-        index="club",
-        columns="injury_month",
-        values="injury_id",
-        aggfunc="count",
-        fill_value=0
-    )
-    available_months = [m for m in month_names if m in heatmap_data.columns]
-    heatmap_data = heatmap_data[available_months]
-    
-    fig_v3 = px.imshow(
-        heatmap_data,
-        labels=dict(x="Calendar Month", y="Club", color="Injury Count"),
-        color_continuous_scale="Magma",
-        aspect="auto",
-        title="Spatiotemporal Distribution of Medical Incidents by Club and Month"
-    )
-    fig_v3.update_layout(
-        template="plotly_dark",
-        plot_bgcolor="rgba(15,23,42,0.8)",
-        paper_bgcolor="rgba(15,23,42,0.8)",
-        height=450
-    )
-    st.plotly_chart(fig_v3, use_container_width=True)
-    
-    st.markdown("""
-    > **Fixture Congestion Findings:** A pronounced cluster of muscular strains occurs during **November, December, and January**. 
-    > This coincides with intense mid-season European competitions and domestic cup schedules without adequate restorative rest.
-    """)
-
-    st.markdown("---")
-    
-    # -------------------------------------------------------------------------
-    # Visual 4: Scatter Plot — Player Age vs. Team Performance Drop Index
-    # -------------------------------------------------------------------------
-    st.markdown("#### 4. Scatter Plot: Player Age vs. Team Performance Drop Index & Recovery")
-    st.caption("Addressing Question 5 & Bonus 6: Explores whether older athlete injuries create more severe team deficits.")
-    
-    fig_v4 = px.scatter(
-        filtered_summary,
-        x="player_age",
-        y="team_performance_drop_index",
-        size="recovery_days",
-        color="position",
-        hover_name="player_name",
-        hover_data=["club", "injury_type", "recovery_days", "recovery_trajectory"],
-        labels={
-            "player_age": "Player Chronological Age",
-            "team_performance_drop_index": "Team Performance Drop Index (%)",
-            "recovery_days": "Absence Days"
-        },
-        title="Correlation Between Athlete Age and Team Performance Drop Index"
-    )
-    # Add robust OLS regression line using pure NumPy (Zero statsmodels dependency)
-    if len(filtered_summary) > 2:
-        valid_scatter = filtered_summary[["player_age", "team_performance_drop_index"]].dropna()
-        if len(valid_scatter) > 1:
-            m_slope, b_intercept = np.polyfit(valid_scatter["player_age"], valid_scatter["team_performance_drop_index"], 1)
-            x_line = np.linspace(valid_scatter["player_age"].min(), valid_scatter["player_age"].max(), 50)
-            y_line = m_slope * x_line + b_intercept
-            fig_v4.add_trace(go.Scatter(
-                x=x_line,
-                y=y_line,
-                mode="lines",
-                name=f"OLS Trendline (slope: {m_slope:+.2f})",
-                line=dict(color="#f43f5e", width=2.5, dash="dash")
-            ))
-    fig_v4.update_layout(
-        template="plotly_dark",
-        plot_bgcolor="rgba(15,23,42,0.8)",
-        paper_bgcolor="rgba(15,23,42,0.8)",
-        height=450
-    )
-    st.plotly_chart(fig_v4, use_container_width=True)
-    
-    st.markdown("""
-    > **Mathematical Regression Takeaway:** The OLS trendline reveals a moderate positive gradient. Veteran players (>29) 
-    > often occupy irreplaceable tactical leadership roles, causing steeper drops when sidelined.
-    """)
-
-    st.markdown("---")
-    
-    # -------------------------------------------------------------------------
-    # Visual 5: Leaderboard Table — Comeback Players Ranked by Rating Improvement
-    # -------------------------------------------------------------------------
-    st.markdown("#### 5. Leaderboard: Comeback Players Ranked by Rating Improvement")
-    st.caption("Addressing Question 3: Technical Directors can identify athletes who exhibited exceptional psychological and physical resilience.")
-    
-    comeback_df = filtered_summary.sort_values(by="rating_delta", ascending=False).reset_index(drop=True)
-    comeback_df["Rank"] = comeback_df.index + 1
-    
-    display_comeback = comeback_df[[
-        "Rank", "player_name", "club", "position", "injury_type", "recovery_days",
-        "pre_injury_avg_rating", "post_injury_avg_rating", "rating_delta", "rating_pct_change", "recovery_trajectory"
-    ]].head(12)
-    
-    try:
-        st.dataframe(
-            display_comeback.style.background_gradient(subset=["rating_delta"], cmap="Greens"),
-            use_container_width=True
-        )
-    except Exception:
-        st.dataframe(display_comeback, use_container_width=True)
-    
-    st.markdown("---")
-    
-    # -------------------------------------------------------------------------
-    # Visual 6 (Bonus): Team Win/Draw/Loss Record During Player Absence
-    # -------------------------------------------------------------------------
-    st.markdown("#### 6. Team Win/Draw/Loss Record During Absence vs. Active Presence")
-    st.caption("Addressing Question 2: Compares match outcome distribution when key players were active vs absent.")
-    
-    wdl_agg = filtered_raw.groupby(["injury_phase", "match_result"])["match_id"].count().reset_index()
-    
-    fig_v6 = px.bar(
-        wdl_agg,
-        x="injury_phase",
-        y="match_id",
-        color="match_result",
-        barmode="group",
-        color_discrete_map={"Win": "#10b981", "Draw": "#f59e0b", "Loss": "#ef4444"},
-        labels={"match_id": "Number of Matches", "injury_phase": "Phase", "match_result": "Match Outcome"},
-        title="Comparative Match Outcomes Across Injury Phases"
-    )
-    fig_v6.update_layout(
-        template="plotly_dark",
-        plot_bgcolor="rgba(15,23,42,0.8)",
-        paper_bgcolor="rgba(15,23,42,0.8)",
-        height=400
-    )
-    st.plotly_chart(fig_v6, use_container_width=True)
+    q_col1, q_col2 = st.columns(2)
+    with q_col1:
+        st.markdown("""
+        **1. Which specific injury types lead to the biggest team performance drop?**  
+        *Hypothesis:* Catastrophic ligament injuries (e.g., ACL rupture, Achilles) and recurring hamstring tears create prolonged squad vacuums, causing higher drop indices than contact bruises or minor sprains.
+        
+        **2. What is the team's win/loss/draw record during key player absences?**  
+        *Hypothesis:* Elite squads experience a measurable drop in win percentage (typically 15–25% lower) and an uptick in draws/losses when their primary tactical playmakers or central defenders are sidelined.
+        
+        **3. How do individual players perform after recovery compared to their pre-injury baseline?**  
+        *Hypothesis:* Post-injury rating recovery is not uniform; younger players (<24 yrs) frequently exhibit 'Elite Comebacks' exceeding their baseline, whereas veteran players (>29 yrs) suffer persistent residual performance drops.
+        """)
+    with q_col2:
+        st.markdown("""
+        **4. Are there specific calendar months or clubs with frequent injury clusters?**  
+        *Hypothesis:* High fixture congestion during the winter period (November, December, January) produces acute spikes in soft-tissue injuries due to insufficient inter-match recovery windows (<72 hours).
+        
+        **5. Which clubs suffer most disproportionately due to injuries?**  
+        *Hypothesis:* Clubs with high pressing intensity and thinner squad rotations experience severe cumulative absence days and greater total forfeited league points.
+        
+        **BONUS 6. How does player age interact with recovery duration and performance degradation?**  
+        *Hypothesis:* A statistically significant positive correlation exists between chronological age, healing velocity (recovery days), and post-recovery rating attenuation.
+        """)
 
 # =============================================================================
 # TAB 5: TACTICAL SQUAD IMPACT SIMULATOR (Decision Support Tool)
