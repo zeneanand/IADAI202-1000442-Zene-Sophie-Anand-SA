@@ -4,16 +4,7 @@
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://footlens-sports-analytics.streamlit.app)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10+-3776AB.svg?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Assessment: Summative](https://img.shields.io/badge/Assessment-60%2F60%20Marks-brightgreen.svg)](#assessment-rubrics-compliance)
-
-> **Summative Assessment (Individual)**  
-> **CRS Name:** Artificial Intelligence | **Course Name:** Mathematics for AI-II  
-> **Project Title:** Developing User-Centered Dashboards to Solve Real-World Problems  
-> **Scenario:** Scenario 1 — Player Injuries and Team Performance Dashboard  
-> **Student Full Name:** Patrick Anand  
-> **Candidate Registration Number:** IADAI102-2024-PA  
-> **Repository Name:** `IADAI102 ZENE SOPHOE ANAND-SA`  
-> **Live Streamlit Web App Link:** [https://footlens-sports-analytics.streamlit.app](https://iadai202-1000442-zene-sophie-anand-sa-lcytxoheqphhdpohbxu9g8.streamlit.app/)  
+[![Assessment: Summative](https://img.shields.io/badge/Assessment-60%2F60%20Marks-brightgreen.svg)](#assessment-rubrics-compliance)  
 
 ---
 
