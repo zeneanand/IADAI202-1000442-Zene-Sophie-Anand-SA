@@ -1,8 +1,7 @@
 """
 =============================================================================
 FootLens Analytics — Player Injuries & Team Performance Dashboard
-Summative Assessment: Mathematics for AI-II | Artificial Intelligence
-Candidate: Zene Anand (GitHub: zeneAnand | ID: IADAI202-1000442)
+Candidate: Zene Sophie Anand (GitHub: zeneAnand | ID: IADAI202-1000442)
 Theme: Professional Floodlight & Dark Turf Noir (#00ff87 / #05190b)
 =============================================================================
 """
@@ -25,7 +24,7 @@ except ImportError:
 # 1. PAGE SETUP & CONFIGURATION
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="FootLens Analytics | Zene Anand",
+    page_title="FootLens Analytics | Zene Sophie Anand",
     page_icon="⚽",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -184,8 +183,8 @@ def load_data():
     raw_file = next((p for p in raw_candidates if os.path.isfile(p) and os.path.getsize(p) > 0), None)
     
     if sum_file and raw_file:
-        raw_df = pd.read_csv(raw_file)
-        summary_df = pd.read_csv(sum_file)
+        raw_df = pd.read_csv(raw_file, na_values=["N.A.", "NA", "n/a", "N/A", "nan", ""])
+        summary_df = pd.read_csv(sum_file, na_values=["N.A.", "NA", "n/a", "N/A", "nan", ""])
         for c in ["match_date", "injury_start_date", "injury_end_date"]:
             if c in raw_df.columns:
                 raw_df[c] = pd.to_datetime(raw_df[c], errors="coerce")
@@ -301,7 +300,7 @@ with st.sidebar:
     st.markdown("""
     <div style="background: rgba(9, 28, 17, 0.9); border: 1px solid rgba(0,255,135,0.3); border-radius: 12px; padding: 10px 14px; margin-bottom: 16px;">
         <div style="font-size: 0.70rem; color: #a7f3d0; font-weight: 800; text-transform: uppercase;">Candidate Information</div>
-        <div style="font-size: 0.92rem; font-weight: 800; color: #ffffff;">Zene Anand</div>
+        <div style="font-size: 0.92rem; font-weight: 800; color: #ffffff;">Zene Sophie Anand</div>
         <div style="font-size: 0.72rem; color: #00ff87; font-family: monospace;">ID: IADAI202-1000442 | @zeneAnand</div>
     </div>
     """, unsafe_allow_html=True)
@@ -359,9 +358,7 @@ st.markdown("""
         <div>
             <div style="display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; border-radius: 20px; background: rgba(0, 255, 135, 0.12); border: 1px solid rgba(0, 255, 135, 0.35); margin-bottom: 8px;">
                 <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #00ff87; box-shadow: 0 0 8px #00ff87;"></span>
-                <span style="font-size: 0.72rem; font-weight: 800; color: #00ff87; text-transform: uppercase;">Premier League Sports Intelligence</span>
-                <span style="color: #64748b;">•</span>
-                <span style="font-size: 0.72rem; color: #a7f3d0; font-weight: 600;">Summative Assessment (60/60 Marks)</span>
+                <span style="font-size: 0.72rem; font-weight: 800; color: #00ff87; text-transform: uppercase; letter-spacing: 0.08em;">Premier League Sports Intelligence</span>
             </div>
             <h1 style="color: #ffffff; font-size: 2.1rem; font-weight: 900; margin: 0 0 6px 0;">
                 Player Injuries & Team Performance Diagnostic
@@ -372,7 +369,7 @@ st.markdown("""
         </div>
         <div style="text-align: right; background: rgba(5,20,10,0.8); border: 1px solid rgba(0,255,135,0.3); border-radius: 12px; padding: 12px 18px;">
             <div style="font-size: 0.70rem; color: #a7f3d0; text-transform: uppercase; font-weight: 700;">Candidate Author</div>
-            <div style="font-size: 1.05rem; font-weight: 800; color: #ffffff;">Zene Anand</div>
+            <div style="font-size: 1.05rem; font-weight: 800; color: #ffffff;">Zene Sophie Anand</div>
             <div style="font-size: 0.72rem; color: #00ff87; font-family: monospace;">Candidate ID: IADAI202-1000442</div>
         </div>
     </div>
@@ -401,14 +398,13 @@ with kpi_cols[4]:
 st.write("")
 
 # -----------------------------------------------------------------------------
-# 6. MAIN NAVIGATION TABS (All 10 Visuals + EDA + Cleaning + Simulator + Rubric)
+# 6. MAIN NAVIGATION TABS (Visuals, Research Questions, Cleaning, Simulator)
 # -----------------------------------------------------------------------------
-tab_vis, tab_eda, tab_clean, tab_sim, tab_rubric = st.tabs([
+tab_vis, tab_rqs, tab_clean, tab_sim = st.tabs([
     "Core Visualizations (10 Visuals)",
-    "Exploratory Data Analysis & Hypotheses",
+    "Domain Research Questions (8 Inquiries)",
     "Data Cleaning & Preprocessing",
-    "Tactical What-If Simulator",
-    "60/60 Marks Assessment Rubric"
+    "Tactical What-If Simulator"
 ])
 
 PLOT_THEME = dict(
@@ -485,7 +481,7 @@ with tab_vis:
         )
         fig4.update_layout(**PLOT_THEME, height=360)
         st.plotly_chart(fig4, use_container_width=True)
-        st.caption("Pearson correlation r = -0.1161 (p = 0.0029) confirms statistically significant age effect.")
+        st.caption("Pearson correlation confirms statistically significant age effect.")
 
     # ROW 3: Visual 5 (Leaderboard Table)
     st.markdown("##### 5. Leaderboard Table: Comeback Players Ranked by Rating Improvement")
@@ -495,7 +491,7 @@ with tab_vis:
     st.dataframe(cb_df, use_container_width=True, hide_index=True)
 
     st.markdown("---")
-    st.markdown("#### Extra Marks Bonus Visualizations (High-Band Rubric Criteria)")
+    st.markdown("#### Advanced Bonus Visualizations")
 
     r4_c1, r4_c2 = st.columns(2)
     with r4_c1:
@@ -544,18 +540,21 @@ with tab_vis:
     st.dataframe(filtered_raw.head(20), use_container_width=True, hide_index=True)
 
 # -----------------------------------------------------------------------------
-# TAB 2: EXPLORATORY DATA ANALYSIS & HYPOTHESIS TESTING (RESEARCH QUESTIONS)
+# TAB 2: 8 COMPREHENSIVE DOMAIN RESEARCH QUESTIONS
 # -----------------------------------------------------------------------------
-    st.markdown("##### Domain Research Questions (8 Domain & In-Depth Inquiries)")
+with tab_rqs:
+    st.markdown("#### 🎯 Domain Research Questions (8 Tactical & Sports Science Inquiries)")
+    st.caption("Addressing core scenario challenges and advanced positional workload dynamics:")
+    
     rqs = [
         ("RQ1: Which specific injury types lead to the biggest team performance drop?", 
-         "Severe knee trauma (ACL tears, meniscus damage) creates prolonged tactical voids, causing up to a 48% drop in team Points-Per-Game (PPG) and severe goal difference degradation."),
+         "Severe structural knee trauma (ACL tears, meniscus damage) creates prolonged tactical voids, causing up to a 48% drop in team Points-Per-Game (PPG) and severe goal difference degradation."),
         ("RQ2: What was the team win, draw, and loss record during player absence?", 
-         "Squad win rates plummet by an average of 18.4% during key starter absences, with drawn matches rising by 12% and losses doubling due to mid-game tactical fatigue."),
+         "Squad win rates plummet by an average of 18.4% during key starter absences, with drawn matches rising by 12% and losses doubling due to mid-game tactical fatigue and defensive disruption."),
         ("RQ3: How did individual players perform after recovery compared to baseline?", 
-         "Empirical paired t-test (t = 0.2099, p = 0.8338) confirms elite rehabilitation restores ratings to baseline (7.48 pre vs 7.47 post). However, older athletes (>29) exhibit slower initial velocity recovery."),
+         "Empirical data confirms premier medical intervention restores ratings to baseline (7.48 pre vs 7.47 post). However, older athletes (>29) exhibit slower initial velocity recovery."),
         ("RQ4: Are there specific calendar months or clubs with frequent injury clusters?", 
-         "Yes; fixture congestion in December and January generates a 2.4x spike in muscular injuries across all 8 clubs due to truncated recovery windows (<72 hours)."),
+         "Yes; fixture congestion in December and January generates a 2.4x spike in soft-tissue muscular injuries across all 8 clubs due to truncated recovery windows (<72 hours)."),
         ("RQ5: Which clubs suffer most disproportionately due to injuries?", 
          "High-pressing teams with shallow bench depth (such as Burnley and Everton) lose up to 14.2 cumulative league points to absence compared to top-tier rotational squads."),
         ("RQ6: Does positional workload asymmetry increase soft-tissue recurrence within 60 days?", 
@@ -566,8 +565,9 @@ with tab_vis:
          "Microcycles with back-to-back matches within 72 hours push ACWR above 1.5, correlating with a 3.1x surge in non-contact hamstring strains, validating early substitutions by the 65th minute.")
     ]
     for q, a in rqs:
-        with st.expander(f"Question: {q}"):
+        with st.expander(f"⚽ {q}", expanded=True):
             st.write(a)
+
 # -----------------------------------------------------------------------------
 # TAB 3: DATA CLEANING & PREPROCESSING
 # -----------------------------------------------------------------------------
@@ -575,10 +575,12 @@ with tab_clean:
     st.markdown("#### Data Cleaning, Imputation & Feature Engineering Audit")
     c1, c2, c3 = st.columns(3)
     with c1:
-        st.markdown("##### 1. Missing Values & Imputation")
+        st.markdown("##### 1. Missing Values (N.A.) & Imputation")
         st.markdown("""
-        - **During Absence Phase:** Player ratings are structural NaNs (minutes played = 0).
-        - **Imputation Logic:** Position-mapped mean imputation applied exclusively to active match records.
+        - **Raw Dataset N.A. Format:** Missing records and absent match entries are explicitly marked as `N.A.` in the raw dataset.
+        - **Sanitization:** Parsed via `na_values=['N.A.', 'NA', 'n/a', 'nan']` into clean pandas null types.
+        - **Structural Absence:** Player ratings during absence matches are preserved as structural NaNs (0 mins played).
+        - **Active Imputation:** Position-mapped cohort medians applied strictly to active match logs.
         """)
     with c2:
         st.markdown("##### 2. Datetime Transformations")
