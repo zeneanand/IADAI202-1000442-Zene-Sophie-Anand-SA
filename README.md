@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img src="assets/assets:footlens_logo.png" alt="FootLens Champions Crest Logo" width="180" style="margin-bottom: 12px;"/>
+<img src="asset/assets:footlens_logo.png" alt="FootLens Champions Crest Logo" width="180" style="margin-bottom: 12px;"/>
 
 ### *Premier League Sports Science, Tactical Resilience & Machine Learning Intelligence*
 
@@ -83,7 +83,7 @@
 
 | View I: End-to-End Dugout Filters & Simulator Integration | View J: Brand Identity & Header Crest Asset |
 | :---: | :---: |
-| <img src="asset/assets:dashboard_simulator_full.jpg" width="100%" alt="Full Dashboard with Dugout Filters and What-If Simulator"/> | <img src="asset/assets:footlens_logo.png" width="85%" alt="FootLens FC Official Header Branding Banner"/> |
+| <img src="asset/assets:dashboard_simulator_full.jpg.jpg" width="100%" alt="Full Dashboard with Dugout Filters and What-If Simulator"/> | <img src="asset/assets:footlens_logo.png" width="85%" alt="FootLens FC Official Header Branding Banner"/> |
 | **Full Interactive Control Architecture**<br/>*Demonstrates real-time synchronization between the left-hand dugout multi-select filters (Premier League Clubs, Tactical Pitch Positions, Injury Severity), executive KPI cards, and the Tactical What-If Matchday Injury Impact Simulator.* | **Official FootLens FC Sports Science Branding**<br/>*Custom dark-turf gold-star crest (`assets/footlens_logo.png`) unifying the Streamlit sidebar identity, GitHub repository header, and summative assessment documentation.* |
 ---
 
