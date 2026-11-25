@@ -32,24 +32,6 @@
 | **GitHub Repository URL** | **[https://github.com/PatrickAnand/iadai202-1000442-zene-sophie-anand-sa](https://github.com/PatrickAnand/iadai202-1000442-zene-sophie-anand-sa)** |
 | **Target Grade** | **60 / 60 Marks (Distinguished Standard / 100% / Grade A+)** |
 
----
-
-# ⚽ FootLens Analytics: Player Injuries & Team Performance Dashboard
-
-<div align="center">
-
-<img src="assets/footlens_logo.png" alt="FootLens FC Sports Science Analytics 5-Star Header Logo" width="340" style="border-radius: 10px; border: 1px solid rgba(0, 255, 135, 0.4); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5); margin-bottom: 12px;"/>
-
-### *Premier League Sports Science, Tactical Resilience & Machine Learning Intelligence*
-
-[![Deployment: Successful](https://img.shields.io/badge/Deployment-Successful-00ff87?style=for-the-badge&logo=streamlit&logoColor=black)](https://iadai202-1000442-zene-sophie-anand-sa.streamlit.app)
-[![Live Streamlit App](https://img.shields.io/badge/Streamlit_Cloud-Live_App-ff4b4b?style=for-the-badge&logo=streamlit&logoColor=white)](https://iadai202-1000442-zene-sophie-anand-sa.streamlit.app)
-[![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/PatrickAnand/iadai202-1000442-zene-sophie-anand-sa)
-[![Open In Colab](https://img.shields.io/badge/Google_Colab-Notebook-F9AB00?style=for-the-badge&logo=googlecolab&logoColor=white)](https://colab.research.google.com/github/zeneAnand/iadai202-1000442-zene-sophie-anand-sa/blob/main/footlens_model_training.ipynb)
-[![Python 3.10+](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![Rubric: 60/60 Marks](https://img.shields.io/badge/Rubric_Score-60%2F60_Marks-00ff87?style=for-the-badge)](#-summative-assessment-rubric-compliance-6060-marks)
-
-</div>
 
 <br/>
 
