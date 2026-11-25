@@ -54,17 +54,17 @@
 
 | View A: High-Impact Diagnoses (RQ1) | View B: Spatiotemporal Injury Heatmap (RQ4) |
 | :---: | :---: |
-| <img src="assets/dashboard_screenshot.jpg" width="100%" alt="Top 10 High Impact Injuries Bar Chart"/> | <img src="assets/dashboard_screenshot.jpg" width="100%" alt="Seasonal Calendar Month Heatmap"/> |
+| <img src="assets/dashboard_screenshot1.jpg" width="100%" alt="Top 10 High Impact Injuries Bar Chart"/> | <img src="assets/dashboard_screenshot.jpg" width="100%" alt="Seasonal Calendar Month Heatmap"/> |
 | **Top 10 Injuries by Drop Index**<br/>*Horizontal bar chart highlighting cruciate ligament, concussion, and tendon trauma severity gradients.* | **Club & Monthly Congestion Heatmap**<br/>*2D density matrix identifying acute December–January fixture congestion injury clusters.* |
 
 | View C: Player Match Telemetry Trajectory (RQ3) | View D: Age vs. Performance Drop Index (Hypothesis 2) |
 | :---: | :---: |
-| <img src="assets/dashboard_screenshot.jpg" width="100%" alt="Player Rating Trajectory Timeline"/> | <img src="assets/dashboard_screenshot.jpg" width="100%" alt="Age vs Performance Drop Scatter Plot"/> |
+| <img src="assets/dashboard_screenshot2.jpg" width="100%" alt="Player Rating Trajectory Timeline"/> | <img src="assets/dashboard_screenshot.jpg" width="100%" alt="Age vs Performance Drop Scatter Plot"/> |
 | **Match-by-Match Player Trajectory**<br/>*Multi-trace timeline tracking Pre-Injury Baseline, Highlighted Absence Period, and Post-Recovery Return.* | **Age Elasticity & Sidelined Days**<br/>*Scatter plot with OLS regression evaluating tactical resilience and age vulnerability.* |
 
 | View E: Tactical Positional Radar Profile | View F: What-If Matchday Squad Simulator |
 | :---: | :---: |
-| <img src="assets/dashboard_screenshot.jpg" width="100%" alt="Tactical Positional Radar Profile"/> | <img src="assets/dashboard_screenshot.jpg" width="100%" alt="Interactive Tactical Absence Simulator"/> |
+| <img src="assets/dashboard_screenshot3.jpg" width="100%" alt="Tactical Positional Radar Profile"/> | <img src="assets/dashboard_screenshot.jpg" width="100%" alt="Interactive Tactical Absence Simulator"/> |
 | **Physical & Tactical Radar Comparison**<br/>*Multi-dimensional radar profile evaluating availability, win rate, goal threat, and pressing intensity.* | **Interactive What-If Scenario Planner**<br/>*Real-time absence forecasting tool with dynamic absence sliders and forfeited points calculations.* |
 
 ---
