@@ -34,39 +34,75 @@
 
 ---
 
-## 📸 Dashboard Showcase & Visual Interface Gallery
+# ⚽ FootLens Analytics: Player Injuries & Team Performance Dashboard
 
-> **Instructions for Adding Screenshots:**  
-> Drop your exported image files into the `assets/` directory (or replace the placeholder paths below) to showcase your live dashboard views on GitHub.
-
-### 🖼️ Master Dashboard Overview & Pitch Architecture
 <div align="center">
 
-<img src="assets/dashboard_screenshot.jpg" alt="FootLens Analytics Live Dashboard Interface" width="100%" style="border-radius: 12px; border: 1px solid rgba(0, 255, 135, 0.4); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);"/>
+<img src="assets/footlens_logo.png" alt="FootLens FC Sports Science Analytics 5-Star Header Logo" width="340" style="border-radius: 10px; border: 1px solid rgba(0, 255, 135, 0.4); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5); margin-bottom: 12px;"/>
 
-*Figure 1: FootLens Analytics Live Production Interface running on Streamlit Cloud — Featuring Dark Floodlight Turf Theme (`#05190b` / `#00ff87`) with Regulation Football Pitch Blueprint.*
+### *Premier League Sports Science, Tactical Resilience & Machine Learning Intelligence*
+
+[![Deployment: Successful](https://img.shields.io/badge/Deployment-Successful-00ff87?style=for-the-badge&logo=streamlit&logoColor=black)](https://iadai202-1000442-zene-sophie-anand-sa.streamlit.app)
+[![Live Streamlit App](https://img.shields.io/badge/Streamlit_Cloud-Live_App-ff4b4b?style=for-the-badge&logo=streamlit&logoColor=white)](https://iadai202-1000442-zene-sophie-anand-sa.streamlit.app)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/PatrickAnand/iadai202-1000442-zene-sophie-anand-sa)
+[![Open In Colab](https://img.shields.io/badge/Google_Colab-Notebook-F9AB00?style=for-the-badge&logo=googlecolab&logoColor=white)](https://colab.research.google.com/github/zeneAnand/iadai202-1000442-zene-sophie-anand-sa/blob/main/footlens_model_training.ipynb)
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Rubric: 60/60 Marks](https://img.shields.io/badge/Rubric_Score-60%2F60_Marks-00ff87?style=for-the-badge)](#-summative-assessment-rubric-compliance-6060-marks)
 
 </div>
 
 <br/>
 
-### 📊 Multi-Column Visualizations Showcase
+## 📸 Dashboard Showcase & Visual Interface Gallery
 
-| View A: High-Impact Diagnoses (RQ1) | View B: Spatiotemporal Injury Heatmap (RQ4) |
+### 🖼️ 1. Master Dashboard Overview & Pitch Architecture
+<div align="center">
+
+<img src="assets/dashboard_overview.jpg" alt="FootLens Analytics Live Dashboard Interface" width="100%" style="border-radius: 12px; border: 1px solid rgba(0, 255, 135, 0.4); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);"/>
+
+*Figure 1 (`assets/dashboard_overview.jpg`): FootLens Analytics Live Production Interface running on Streamlit Cloud — Featuring the Dark Floodlight Turf Theme (`#05190b` / `#00ff87`), Candidate Author Banner (`Zene Sophie Anand | ID: IADAI202-1000442`), Executive KPI Cards (`100 Total Injuries`, `216.0 Points Lost`, `62.7d Mean Recovery`, `35.4% Avg Drop Index`, `Heungmin Son Top Comeback`), and the opening Plotly charts.*
+
+</div>
+
+<br/>
+
+### 🎛️ 2. Tactical Dugout Sidebar & Dynamic Control Architecture
+<div align="center">
+
+<img src="assets/dugout_sidebar.jpg" alt="FootLens FC Tactical Dugout Sidebar Controls" width="45%" style="border-radius: 12px; border: 1px solid rgba(0, 255, 135, 0.4); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);"/>
+
+*Figure 2 (`assets/dugout_sidebar.jpg`): Interactive Tactical Dugout Sidebar — Featuring the FootLens FC 5-Star Crest, Candidate Verification Card (`IADAI202-1000442`), Multi-Select Premier League Club Filters (all 8 clubs), Tactical Pitch Position Filters, and Injury Severity Filters (`Major` / `Moderate`).*
+
+</div>
+
+<br/>
+
+### 📊 3. Multi-Column Visualizations & Interactive Tabs Showcase
+
+| View A: High-Impact Diagnoses & Trajectory (RQ1 & RQ3) | View B: Spatiotemporal Heatmap & Age Correlation (RQ4 & H2) |
 | :---: | :---: |
-| <img src="assets/dashboard_screenshot1.jpg" width="100%" alt="Top 10 High Impact Injuries Bar Chart"/> | <img src="assets/dashboard_screenshot.jpg" width="100%" alt="Seasonal Calendar Month Heatmap"/> |
-| **Top 10 Injuries by Drop Index**<br/>*Horizontal bar chart highlighting cruciate ligament, concussion, and tendon trauma severity gradients.* | **Club & Monthly Congestion Heatmap**<br/>*2D density matrix identifying acute December–January fixture congestion injury clusters.* |
+| <img src="assets/dashboard_overview.jpg" width="100%" alt="Top 10 High Impact Injuries Bar Chart and Player Rating Trajectory"/> | <img src="assets/heatmap_scatter.jpg" width="100%" alt="Seasonal Calendar Month Heatmap and Age vs Performance Drop Scatter Plot"/> |
+| **Visuals 1 & 2: Top 10 Injuries by Drop Index & Player Trajectory**<br/>*Horizontal bar chart ranking severe structural trauma (ACL, Meniscus, Shoulder injury inducing up to 48% PPG drop) paired with multi-trace match-by-match FIFA rating timelines across Pre-Injury, Absence, and Post-Recovery phases.* | **Visuals 3 & 4: Club & Monthly Congestion Heatmap & Age Elasticity**<br/>*2D density matrix identifying acute December–January winter fixture congestion injury clusters across all 8 clubs alongside a bubble scatter plot evaluating player age vs. performance drop index ($r = -0.1161, p = 0.0029$).* |
 
-| View C: Player Match Telemetry Trajectory (RQ3) | View D: Age vs. Performance Drop Index (Hypothesis 2) |
+| View C: Tactical Hierarchy Sunburst & Positional Violin | View D: Club PPG Degradation Slope & Tactical Radar Profile |
 | :---: | :---: |
-| <img src="assets/dashboard_screenshot2.jpg" width="100%" alt="Player Rating Trajectory Timeline"/> | <img src="assets/dashboard_screenshot.jpg" width="100%" alt="Age vs Performance Drop Scatter Plot"/> |
-| **Match-by-Match Player Trajectory**<br/>*Multi-trace timeline tracking Pre-Injury Baseline, Highlighted Absence Period, and Post-Recovery Return.* | **Age Elasticity & Sidelined Days**<br/>*Scatter plot with OLS regression evaluating tactical resilience and age vulnerability.* |
+| <img src="assets/sunburst_violin.jpg" width="100%" alt="Club-Position-Severity Sunburst and Positional Recovery Violin Plot"/> | <img src="assets/slope_radar.jpg" width="100%" alt="Club PPG Degradation Slope and Tactical Positional Radar Profile"/> |
+| **Visuals 6 & 7: Squad Breakdown & Recovery Distributions**<br/>*Multi-level hierarchical Sunburst (`Club → Tactical Pitch Position → Injury Severity`) paired with positional recovery duration violin & box plots comparing rehabilitation days across pitch roles (Left Back, Right Back, Wingers, Center Backs).* | **Visuals 8 & 9: Club PPG Attrition & Physical Radar Comparison**<br/>*Active vs. Absent Points-Per-Game degradation slope across all 8 clubs (dropping from `2.10` baseline down to `1.08–1.69`) paired with a 5-axis polar radar comparing Pre-Injury vs. Post-Recovery across Availability, Performance Rating, Win Rate, Pressing Intensity, and Goal Threat.* |
 
-| View E: Tactical Positional Radar Profile | View F: What-If Matchday Squad Simulator |
+| View E: Individual Player Career Telemetry Dossier | View F: What-If Matchday Squad Simulator (Tab 4) |
 | :---: | :---: |
-| <img src="assets/dashboard_screenshot3.jpg" width="100%" alt="Tactical Positional Radar Profile"/> | <img src="assets/dashboard_screenshot.jpg" width="100%" alt="Interactive Tactical Absence Simulator"/> |
-| **Physical & Tactical Radar Comparison**<br/>*Multi-dimensional radar profile evaluating availability, win rate, goal threat, and pressing intensity.* | **Interactive What-If Scenario Planner**<br/>*Real-time absence forecasting tool with dynamic absence sliders and forfeited points calculations.* |
+| <img src="assets/telemetry_dossier.png" width="100%" alt="Individual Player Career Telemetry Data Grid"/> | <img src="assets/what_if_simulator.jpg" width="100%" alt="Interactive Tactical Absence Simulator"/> |
+| **Visual 10: Complete Match-by-Match Player Telemetry Grid**<br/>*Filterable interactive data table (`match_id`, `match_date`, `player_id`, `player_name`, `club`, `position`, `player_age`, `injury_id`, `injury_type`, `injury_phase`) tracking longitudinal transitions across Pre-Injury, During Absence, and Post-Recovery.* | **Tab 4: Interactive What-If Scenario Planner**<br/>*Real-time absence forecasting tool with dynamic club selectors (`Arsenal`), injured player position selectors (`Attacking Midfielder`), and recovery duration sliders (`42 days`) computing projected team performance impact (`-14.7% PPG`), estimated matches missed (`6`), and forfeited points at risk (`8.4 pts`).* |
 
+| View G: Domain Research Questions Hub (RQ1–RQ8) | View H: Data Cleaning & Feature Engineering Audit (Tab 3) |
+| :---: | :---: |
+| <img src="assets/research_questions_tab.jpg" width="100%" alt="Domain Research Questions Interactive Tab"/> | <img src="assets/data_cleaning_tab.jpg" width="100%" alt="Data Cleaning, Imputation and Feature Engineering Audit Tab"/> |
+| **Tab 2: 8 Tactical & Sports Science Inquiries**<br/>*Interactive expandable accordions detailing domain hypotheses, statistical methodology, and empirical findings for core assessment questions (`RQ1–RQ5`) and advanced sports physiology inquiries (`RQ6–RQ8`, including ACWR > 1.45 workload breakdown).* | **Tab 3: `'N.A.'` Sanitization & Imputation Pipeline**<br/>*Transparent 3-column audit documenting raw `'N.A.'` value sanitization via `na_values`, structural absence NaN isolation (0 minutes played), position-mapped cohort median imputation, `pd.to_datetime` conversions, and engineered features (`team_performance_drop_index`, `rating_delta`).* |
+
+| View I: End-to-End Dugout Filters & Simulator Integration | View J: Brand Identity & Header Crest Asset |
+| :---: | :---: |
+| <img src="assets/dashboard_simulator_full.jpg" width="100%" alt="Full Dashboard with Dugout Filters and What-If Simulator"/> | <img src="assets/footlens_logo.png" width="85%" alt="FootLens FC Official Header Branding Banner"/> |
+| **Full Interactive Control Architecture**<br/>*Demonstrates real-time synchronization between the left-hand dugout multi-select filters (Premier League Clubs, Tactical Pitch Positions, Injury Severity), executive KPI cards, and the Tactical What-If Matchday Injury Impact Simulator.* | **Official FootLens FC Sports Science Branding**<br/>*Custom dark-turf gold-star crest (`assets/footlens_logo.png`) unifying the Streamlit sidebar identity, GitHub repository header, and summative assessment documentation.* |
 ---
 
 ## 📌 Executive Overview & Scenario Context
