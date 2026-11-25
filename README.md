@@ -40,7 +40,7 @@
 ### 🖼️ 1. Master Dashboard Overview & Pitch Architecture
 <div align="center">
 
-<img src="assets/dashboard_overview.jpg" alt="FootLens Analytics Live Dashboard Interface" width="100%" style="border-radius: 12px; border: 1px solid rgba(0, 255, 135, 0.4); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);"/>
+<img src="asset/assets:dashboard_overview.jpg" alt="FootLens Analytics Live Dashboard Interface" width="100%" style="border-radius: 12px; border: 1px solid rgba(0, 255, 135, 0.4); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);"/>
 
 *Figure 1 (`assets/dashboard_overview.jpg`): FootLens Analytics Live Production Interface running on Streamlit Cloud — Featuring the Dark Floodlight Turf Theme (`#05190b` / `#00ff87`), Candidate Author Banner (`Zene Sophie Anand | ID: IADAI202-1000442`), Executive KPI Cards (`100 Total Injuries`, `216.0 Points Lost`, `62.7d Mean Recovery`, `35.4% Avg Drop Index`, `Heungmin Son Top Comeback`), and the opening Plotly charts.*
 
